@@ -1,0 +1,13 @@
+<h1>メモの作成・編集</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">保存する</button>
+</form>
+
+{% if object %}
+  <a href="{% url 'booklog:book_detail' object.book.pk %}">キャンセル</a>
+{% else %}
+  <a href="{% url 'booklog:book_detail' book_pk %}">キャンセル</a>
+{% endif %}
