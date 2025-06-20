@@ -1,8 +1,28 @@
 <h1>{{ object.title }}</h1>
 <p>著者: {{ object.author }}</p>
-<p>読了日: {{ object.read_date }}</p>
-<p>メモ: {{ object.memo }}</p>
+<p>出版日: {{ object.published_date|default:"未設定" }}</p>
 
-<a href="{% url 'booklog:book_edit' object.pk %}">編集</a> |
-<a href="{% url 'booklog:book_delete' object.pk %}">削除</a> |
-<a href="{% url 'booklog:book_list' %}">戻る</a>
+<hr>
+
+<h2>
+  メモ一覧
+  <a href="{% url 'booklog:memo_add' book_pk=object.pk %}">(+) メモを追加</a>
+</h2>
+<ul>
+  {% for memo in object.memos.all %}
+    <li>
+      {{ memo.content|linebreaksbr }} 
+      (作成日: {{ memo.created_at }})
+      <a href="{% url 'booklog:memo_edit' pk=memo.pk %}">編集</a> | 
+      <a href="{% url 'booklog:memo_delete' pk=memo.pk %}">削除</a>
+    </li>
+  {% empty %}
+    <li>この本に関するメモはまだありません。</li>
+  {% endfor %}
+</ul>
+
+<hr>
+
+<a href="{% url 'booklog:book_edit' object.pk %}">書籍情報を編集</a> |
+<a href="{% url 'booklog:book_delete' object.pk %}">書籍を削除</a> |
+<a href="{% url 'booklog:book_list' %}">一覧へ戻る</a>
