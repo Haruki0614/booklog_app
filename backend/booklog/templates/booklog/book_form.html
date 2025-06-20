@@ -1,0 +1,11 @@
+<!-- book_form.html -->
+
+<h1>新しい本を追加</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">登録</button>
+</form>
+
+<a href="{% url 'booklog:book_list' %}">← 一覧へ戻る</a>

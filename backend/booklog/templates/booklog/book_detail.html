@@ -1,0 +1,8 @@
+<h1>{{ object.title }}</h1>
+<p>著者: {{ object.author }}</p>
+<p>読了日: {{ object.read_date }}</p>
+<p>メモ: {{ object.memo }}</p>
+
+<a href="{% url 'booklog:book_edit' object.pk %}">編集</a> |
+<a href="{% url 'booklog:book_delete' object.pk %}">削除</a> |
+<a href="{% url 'booklog:book_list' %}">戻る</a>

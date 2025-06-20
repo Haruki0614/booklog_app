@@ -1,0 +1,11 @@
+<h1>読書記録一覧</h1>
+<a href="{% url 'booklog:book_add' %}">新しい本を追加</a>
+<ul>
+  {% for book in object_list %}
+    <li>
+      <a href="{% url 'booklog:book_detail' book.pk %}">
+        {{ book.title }} by {{ book.author }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
