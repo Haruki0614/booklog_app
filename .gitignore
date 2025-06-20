@@ -1,0 +1,30 @@
+# Python関連
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django関連
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# 環境変数
+.env
+
+# Docker関連
+db-data/
+docker-compose.override.yml
+
+# IDE / エディタ関連
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ログファイル
+*.log
+
+# Mac / Windows固有ファイル
+.DS_Store
+Thumbs.db
