@@ -9,9 +9,42 @@ from .forms import MemoForm, BookForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
 
-class BookListView(ListView):
+from django.db.models import Q
+
+class BookListView(LoginRequiredMixin, ListView):
     model = Book
     template_name = 'booklog/book_list.html'
+    paginate_by = 10  # ページネーション
+
+    def get_queryset(self):
+        """
+        このメソッドで、表示する書籍リストを準備します。
+        検索機能のロジックはここに記述します。
+        """
+        # まずはログインユーザーに紐づく書籍をすべて取得し、新しい順に並べます。
+        queryset = Book.objects.filter(user=self.request.user).order_by('-created_at')
+        
+        # URLから検索キーワード('q')を取得します。
+        query = self.request.GET.get('q')
+
+        # もし検索キーワードがあれば、絞り込みを実行します。
+        if query:
+            # タイトル(title)または著者(author)に検索キーワードが含まれるものを検索します。
+            # "icontains" は大文字・小文字を区別しない部分一致を意味します。
+            queryset = queryset.filter(
+                Q(title__icontains=query) | Q(author__icontains=query)
+            )
+        
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        """
+        テンプレートに渡す追加のデータを設定します。
+        """
+        context = super().get_context_data(**kwargs)
+        # 検索後も検索ボックスにキーワードが残るように、キーワードをテンプレートに渡します。
+        context['query'] = self.request.GET.get('q', '')
+        return context
 
 class BookDetailView(DetailView):
     model = Book
