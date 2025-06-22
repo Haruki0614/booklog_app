@@ -4,7 +4,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.shortcuts import get_object_or_404
 
 from .models import Book, Memo
-from .forms import MemoForm
+from .forms import MemoForm, BookForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import UserCreationForm
@@ -17,15 +17,15 @@ class BookDetailView(DetailView):
     model = Book
     template_name = 'booklog/book_detail.html'
 
-class BookCreateView(CreateView):
+class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
-    fields = ['title', 'author', 'published_date']
+    form_class = BookForm # fieldsの代わりにform_classを指定
     template_name = 'booklog/book_form.html'
     success_url = reverse_lazy('booklog:book_list')
 
-class BookUpdateView(UpdateView):
+class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
-    fields = ['title', 'author', 'published_date']
+    form_class = BookForm # fieldsの代わりにform_classを指定
     template_name = 'booklog/book_form.html'
     success_url = reverse_lazy('booklog:book_list')
 
