@@ -1,11 +1,24 @@
-<!-- book_form.html -->
+{% extends 'booklog/base.html' %}
 
-<h1>新しい本を追加</h1>
+{% block title %}書籍の編集{% endblock %}
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">登録</button>
-</form>
-
-<a href="{% url 'booklog:book_list' %}">← 一覧へ戻る</a>
+{% block content %}
+  <h1>書籍の作成・編集</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.title.label_tag }}
+      <input type="text" name="title" value="{{ form.title.value|default:'' }}" class="form-control">
+    </div>
+    <div class="mb-3">
+      {{ form.author.label_tag }}
+      <input type="text" name="author" value="{{ form.author.value|default:'' }}" class="form-control">
+    </div>
+    <div class="mb-3">
+      {{ form.published_date.label_tag }}
+      <input type="date" name="published_date" value="{{ form.published_date.value|date:'Y-m-d'|default:'' }}" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-success">保存する</button>
+    <a href="{% url 'booklog:book_list' %}" class="btn btn-secondary">キャンセル</a>
+  </form>
+{% endblock %}

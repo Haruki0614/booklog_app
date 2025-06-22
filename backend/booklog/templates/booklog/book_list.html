@@ -1,23 +1,28 @@
-<nav>
-  {% if user.is_authenticated %}
-    <p>ようこそ、{{ user.username }}さん</p>
-    <form action="{% url 'logout' %}" method="post" style="display: inline;">
-      {% csrf_token %}
-      <button type="submit">ログアウト</button>
-    </form>
-  {% else %}
-    <a href="{% url 'login' %}">ログイン</a>
-  {% endif %}
-</nav>
-<hr>
-<h1>読書記録一覧</h1>
-<a href="{% url 'booklog:book_add' %}">新しい本を追加</a>
-<ul>
-  {% for book in object_list %}
-    <li>
-      <a href="{% url 'booklog:book_detail' book.pk %}">
-        {{ book.title }} by {{ book.author }}
+{% extends 'booklog/base.html' %}
+
+{% block title %}読書記録一覧{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1>読書記録一覧</h1>
+  <a href="{% url 'booklog:book_add' %}" class="btn btn-primary">新しい本を追加</a>
+</div>
+
+{% if object_list %}
+  <div class="list-group">
+    {% for book in object_list %}
+      <a href="{% url 'booklog:book_detail' book.pk %}" class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between">
+          <h5 class="mb-1">{{ book.title }}</h5>
+          <small>登録日: {{ book.created_at|date:"Y/m/d" }}</small>
+        </div>
+        <p class="mb-1">著者: {{ book.author }}</p>
       </a>
-    </li>
-  {% endfor %}
-</ul>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info" role="alert">
+    まだ本が登録されていません。最初の本を登録してみましょう！
+  </div>
+{% endif %}
+{% endblock %}
