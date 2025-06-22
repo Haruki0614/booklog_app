@@ -1,28 +1,44 @@
-<h1>{{ object.title }}</h1>
-<p>著者: {{ object.author }}</p>
-<p>出版日: {{ object.published_date|default:"未設定" }}</p>
+{% extends 'booklog/base.html' %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h2>{{ object.title }}</h2>
+  </div>
+  <div class="card-body">
+    <p><strong>著者:</strong> {{ object.author }}</p>
+    <p><strong>出版日:</strong> {{ object.published_date|date:"Y年m月d日"|default:"未設定" }}</p>
+  </div>
+  <div class="card-footer">
+    <a href="{% url 'booklog:book_edit' object.pk %}" class="btn btn-secondary">書籍情報を編集</a>
+    <a href="{% url 'booklog:book_delete' object.pk %}" class="btn btn-danger">書籍を削除</a>
+  </div>
+</div>
 
 <hr>
 
-<h2>
-  メモ一覧
-  <a href="{% url 'booklog:memo_add' book_pk=object.pk %}">(+) メモを追加</a>
-</h2>
-<ul>
-  {% for memo in object.memos.all %}
-    <li>
-      {{ memo.content|linebreaksbr }} 
-      (作成日: {{ memo.created_at }})
-      <a href="{% url 'booklog:memo_edit' pk=memo.pk %}">編集</a> | 
-      <a href="{% url 'booklog:memo_delete' pk=memo.pk %}">削除</a>
-    </li>
-  {% empty %}
-    <li>この本に関するメモはまだありません。</li>
-  {% endfor %}
-</ul>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3>メモ一覧</h3>
+  <a href="{% url 'booklog:memo_add' book_pk=object.pk %}" class="btn btn-success">(+) メモを追加</a>
+</div>
+
+{% for memo in object.memos.all %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <p class="card-text">{{ memo.content|linebreaksbr }}</p>
+      <div class="text-end">
+        <small class="text-muted">作成日時: {{ memo.created_at|date:"Y/m/d H:i" }}</small>
+        <a href="{% url 'booklog:memo_edit' pk=memo.pk %}" class="btn btn-sm btn-outline-primary ms-2">編集</a>
+        <a href="{% url 'booklog:memo_delete' pk=memo.pk %}" class="btn btn-sm btn-outline-danger">削除</a>
+      </div>
+    </div>
+  </div>
+{% empty %}
+  <p>この本に関するメモはまだありません。</p>
+{% endfor %}
 
 <hr>
-
-<a href="{% url 'booklog:book_edit' object.pk %}">書籍情報を編集</a> |
-<a href="{% url 'booklog:book_delete' object.pk %}">書籍を削除</a> |
-<a href="{% url 'booklog:book_list' %}">一覧へ戻る</a>
+<a href="{% url 'booklog:book_list' %}" class="btn btn-outline-secondary mt-3">← 一覧へ戻る</a>
+{% endblock %}
