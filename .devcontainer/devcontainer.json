@@ -7,6 +7,9 @@
         "../docker-compose.yml"
     ],
 
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
     // 起動・接続するサービス名を指定 (docker-compose.yml内のサービス名)
     "service": "web",
 
