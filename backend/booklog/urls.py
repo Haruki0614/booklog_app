@@ -1,5 +1,3 @@
-# backend/booklog/urls.py
-
 from django.urls import path
 from . import views
 
@@ -12,6 +10,9 @@ urlpatterns = [
     path('add/', views.BookCreateView.as_view(), name='book_add'),
     path('edit/<int:pk>/', views.BookUpdateView.as_view(), name='book_edit'),
     path('delete/<int:pk>/', views.BookDeleteView.as_view(), name='book_delete'),
+    
+    # サインアップ用のURL
+    path('signup/', views.SignUpView.as_view(), name='signup'),
     
     # メモ用のURL
     path('detail/<int:book_pk>/memo/add/', views.MemoCreateView.as_view(), name='memo_add'),
