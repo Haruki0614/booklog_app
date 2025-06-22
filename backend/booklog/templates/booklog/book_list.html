@@ -1,4 +1,4 @@
-{% extends 'booklog/base.html' %}
+{% extends 'booklog/base.html' %} {# base.htmlを継承している前提です #}
 
 {% block title %}読書記録一覧{% endblock %}
 
@@ -8,6 +8,12 @@
   <a href="{% url 'booklog:book_add' %}" class="btn btn-primary">新しい本を追加</a>
 </div>
 
+<div class="mb-4">
+  <form method="get" action="{% url 'booklog:book_list' %}" class="d-flex">
+    <input type="text" name="q" class="form-control me-2" placeholder="タイトルや著者名で検索..." value="{{ query }}">
+    <button class="btn btn-outline-success" type="submit">検索</button>
+  </form>
+</div>
 {% if object_list %}
   <div class="list-group">
     {% for book in object_list %}
@@ -21,8 +27,18 @@
     {% endfor %}
   </div>
 {% else %}
-  <div class="alert alert-info" role="alert">
-    まだ本が登録されていません。最初の本を登録してみましょう！
-  </div>
+  {# ===== 検索結果がない場合の表示を修正 ===== #}
+  {% if query %}
+    <div class="alert alert-warning" role="alert">
+      「{{ query }}」に一致する書籍は見つかりませんでした。
+    </div>
+  {% else %}
+    <div class="alert alert-info" role="alert">
+      まだ本が登録されていません。最初の本を登録してみましょう！
+    </div>
+  {% endif %}
 {% endif %}
+
+{# ページネーションがあれば、この下に記述 #}
+
 {% endblock %}
