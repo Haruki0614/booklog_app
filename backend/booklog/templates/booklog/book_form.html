@@ -1,24 +1,13 @@
 {% extends 'booklog/base.html' %}
 
-{% block title %}書籍の編集{% endblock %}
+{% block title %}{% if object %}書籍の編集{% else %}新しい本を追加{% endif %}{% endblock %}
 
 {% block content %}
-  <h1>書籍の作成・編集</h1>
+  <h1>{% if object %}書籍の編集{% else %}新しい本を追加{% endif %}</h1>
   <form method="post">
     {% csrf_token %}
-    <div class="mb-3">
-      {{ form.title.label_tag }}
-      <input type="text" name="title" value="{{ form.title.value|default:'' }}" class="form-control">
-    </div>
-    <div class="mb-3">
-      {{ form.author.label_tag }}
-      <input type="text" name="author" value="{{ form.author.value|default:'' }}" class="form-control">
-    </div>
-    <div class="mb-3">
-      {{ form.published_date.label_tag }}
-      <input type="date" name="published_date" value="{{ form.published_date.value|date:'Y-m-d'|default:'' }}" class="form-control">
-    </div>
-    <button type="submit" class="btn btn-success">保存する</button>
-    <a href="{% url 'booklog:book_list' %}" class="btn btn-secondary">キャンセル</a>
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">登録</button>
+    <a href="{% if object %}{% url 'booklog:book_detail' object.pk %}{% else %}{% url 'booklog:book_list' %}{% endif %}" class="btn btn-secondary">キャンセル</a>
   </form>
 {% endblock %}
