@@ -1,4 +1,3 @@
-
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.shortcuts import get_object_or_404
@@ -46,9 +45,12 @@ class BookListView(LoginRequiredMixin, ListView):
         context['query'] = self.request.GET.get('q', '')
         return context
 
-class BookDetailView(DetailView):
+class BookDetailView(LoginRequiredMixin, DetailView):
     model = Book
     template_name = 'booklog/book_detail.html'
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
 
 class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
@@ -56,16 +58,26 @@ class BookCreateView(LoginRequiredMixin, CreateView):
     template_name = 'booklog/book_form.html'
     success_url = reverse_lazy('booklog:book_list')
 
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
 class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
     form_class = BookForm # fieldsの代わりにform_classを指定
     template_name = 'booklog/book_form.html'
     success_url = reverse_lazy('booklog:book_list')
 
-class BookDeleteView(DeleteView):
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
+
+class BookDeleteView(LoginRequiredMixin, DeleteView):
     model = Book
     template_name = 'booklog/book_confirm_delete.html'
     success_url = reverse_lazy('booklog:book_list')
+
+    def get_queryset(self):
+        return Book.objects.filter(user=self.request.user)
 
 
 class MemoCreateView(CreateView):
@@ -121,53 +133,3 @@ class SignUpView(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login') # 登録成功後はログインページにリダイレクト
     template_name = 'booklog/signup.html'
-
-
-# --- 書籍CRUDビュー ---
-# LoginRequiredMixin を追加
-class BookListView(LoginRequiredMixin, ListView):
-    model = Book
-    template_name = 'booklog/book_list.html'
-
-    # ログインユーザーの書籍だけを取得する
-    def get_queryset(self):
-        return Book.objects.filter(user=self.request.user).order_by('-created_at')
-
-# LoginRequiredMixin を追加
-class BookDetailView(LoginRequiredMixin, DetailView):
-    model = Book
-    template_name = 'booklog/book_detail.html'
-
-    def get_queryset(self):
-        return Book.objects.filter(user=self.request.user)
-
-# LoginRequiredMixin を追加
-class BookCreateView(LoginRequiredMixin, CreateView):
-    model = Book
-    fields = ['title', 'author', 'published_date']
-    template_name = 'booklog/book_form.html'
-    success_url = reverse_lazy('booklog:book_list')
-
-    # フォームが送信されたときに、userフィールドを自動で設定
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-# LoginRequiredMixin を追加
-class BookUpdateView(LoginRequiredMixin, UpdateView):
-    model = Book
-    fields = ['title', 'author', 'published_date']
-    template_name = 'booklog/book_form.html'
-    success_url = reverse_lazy('booklog:book_list')
-
-    def get_queryset(self):
-        return Book.objects.filter(user=self.request.user)
-
-# LoginRequiredMixin を追加
-class BookDeleteView(LoginRequiredMixin, DeleteView):
-    model = Book
-    template_name = 'booklog/book_confirm_delete.html'
-    success_url = reverse_lazy('booklog:book_list')
-
-    def get_queryset(self):
-        return Book.objects.filter(user=self.request.user)
