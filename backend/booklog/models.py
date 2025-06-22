@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Book(models.Model):
     title = models.CharField('タイトル', max_length=200)
@@ -6,6 +7,8 @@ class Book(models.Model):
     published_date = models.DateField('出版日', null=True, blank=True)
     created_at = models.DateTimeField('登録日時', auto_now_add=True)
     updated_at = models.DateTimeField('更新日時', auto_now=True)
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

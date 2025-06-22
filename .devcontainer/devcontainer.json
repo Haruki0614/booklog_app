@@ -1,0 +1,29 @@
+{
+    // 開発コンテナの表示名
+    "name": "Booklog App (Django)",
+
+    // 使用するdocker-composeファイルを指定
+    "dockerComposeFile": [
+        "../docker-compose.yml"
+    ],
+
+    // 起動・接続するサービス名を指定 (docker-compose.yml内のサービス名)
+    "service": "web",
+
+    // VSCodeで開くワークスペースのパスをコンテナ内のパスで指定
+    "workspaceFolder": "/usr/src/app",
+
+    // コンテナ内で有効にするVSCodeの拡張機能を指定
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python", // Python開発に必須
+                "ms-python.vscode-pylance", // 高機能な言語サーバー
+                "batisteo.vscode-django" // Djangoスニペットや構文ハイライト
+            ]
+        }
+    },
+
+    // コンテナ作成後に一度だけ実行するコマンド
+    "postCreateCommand": "python -m pip install -r requirements.txt"
+}
