@@ -82,6 +82,9 @@ DATABASES = {
         'PASSWORD': config('MYSQL_PASSWORD'),
         'HOST': 'db',
         'PORT': '3306',
+        'TEST': {
+            'NAME': config('MYSQL_DATABASE'),
+        },
     }
 }
 
