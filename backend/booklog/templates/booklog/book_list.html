@@ -1,44 +1,69 @@
-{% extends 'booklog/base.html' %} {# base.htmlを継承している前提です #}
+{% extends "booklog/base.html" %}
 
-{% block title %}読書記録一覧{% endblock %}
+{% block title %}書籍一覧{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1>読書記録一覧</h1>
-  <a href="{% url 'booklog:book_add' %}" class="btn btn-primary">新しい本を追加</a>
-</div>
+<h2 class="mt-4 mb-4">書籍一覧</h2>
+<a href="{% url 'booklog:book_create' %}" class="btn btn-primary mb-3">書籍の登録</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>タイトル</th>
+            <th>著者</th>
+            <th>登録日</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr>
+            <td><a href="{% url 'booklog:book_detail' book.pk %}">{{ book.title }}</a></td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.created_at|date:"Y/m/d" }}</td>
+            <td>
+                <a href="{% url 'booklog:book_update' book.pk %}" class="btn btn-secondary btn-sm">編集</a>
+                <a href="{% url 'booklog:book_delete' book.pk %}" class="btn btn-danger btn-sm">削除</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">登録されている書籍はありません。</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-<div class="mb-4">
-  <form method="get" action="{% url 'booklog:book_list' %}" class="d-flex">
-    <input type="text" name="q" class="form-control me-2" placeholder="タイトルや著者名で検索..." value="{{ query }}">
-    <button class="btn btn-outline-success" type="submit">検索</button>
-  </form>
-</div>
-{% if object_list %}
-  <div class="list-group">
-    {% for book in object_list %}
-      <a href="{% url 'booklog:book_detail' book.pk %}" class="list-group-item list-group-item-action">
-        <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">{{ book.title }}</h5>
-          <small>登録日: {{ book.created_at|date:"Y/m/d" }}</small>
-        </div>
-        <p class="mb-1">著者: {{ book.author }}</p>
-      </a>
-    {% endfor %}
-  </div>
-{% else %}
-  {# ===== 検索結果がない場合の表示を修正 ===== #}
-  {% if query %}
-    <div class="alert alert-warning" role="alert">
-      「{{ query }}」に一致する書籍は見つかりませんでした。
-    </div>
-  {% else %}
-    <div class="alert alert-info" role="alert">
-      まだ本が登録されていません。最初の本を登録してみましょう！
-    </div>
-  {% endif %}
+{% if is_paginated %}
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {# 前のページへのリンク #}
+        {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">前へ</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">前へ</a>
+            </li>
+        {% endif %}
+
+        {# 現在のページ番号の表示 #}
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        </li>
+
+        {# 次のページへのリンク #}
+        {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">次へ</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">次へ</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
 {% endif %}
-
-{# ページネーションがあれば、この下に記述 #}
 
 {% endblock %}

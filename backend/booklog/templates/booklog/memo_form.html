@@ -1,13 +1,50 @@
-<h1>メモの作成・編集</h1>
+{% extends 'booklog/base.html' %}
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">保存する</button>
-</form>
+{% block title %}{% if object %}メモの編集{% else %}メモの登録{% endif %}{% endblock %}
 
-{% if object %}
-  <a href="{% url 'booklog:book_detail' object.book.pk %}">キャンセル</a>
-{% else %}
-  <a href="{% url 'booklog:book_detail' book_pk %}">キャンセル</a>
-{% endif %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h2 class="mt-4 mb-4">{% if object %}メモの編集{% else %}メモの登録{% endif %}</h2>
+    
+    {% if object %}
+    <div class="alert alert-info mb-3">
+      <strong>対象書籍:</strong> {{ object.book.title }}
+    </div>
+    {% else %}
+    <div class="alert alert-info mb-3">
+      <strong>対象書籍:</strong> {{ book.title }}
+    </div>
+    {% endif %}
+    
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">メモ内容</h5>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+          
+          <div class="mb-3">
+            <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+            {{ form.content }}
+            {% if form.content.errors %}
+              <div class="text-danger">{{ form.content.errors }}</div>
+            {% endif %}
+            <div class="form-text">読書の感想、重要なポイント、引用など自由に記入してください。</div>
+          </div>
+          
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            {% if object %}
+              <a href="{% url 'booklog:book_detail' object.book.pk %}" class="btn btn-secondary me-md-2">キャンセル</a>
+            {% else %}
+              <a href="{% url 'booklog:book_detail' book_pk %}" class="btn btn-secondary me-md-2">キャンセル</a>
+            {% endif %}
+            <button type="submit" class="btn btn-primary">{% if object %}更新{% else %}登録{% endif %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
