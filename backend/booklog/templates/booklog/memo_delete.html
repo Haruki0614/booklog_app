@@ -1,0 +1,44 @@
+{% extends 'booklog/base.html' %}
+
+{% block title %}メモの削除確認{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mt-4 mb-4">メモの削除確認</h2>
+    
+    <div class="card border-danger">
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">削除確認</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-warning">
+          <h6 class="alert-heading">注意!</h6>
+          <p class="mb-0">以下のメモを本当に削除しますか？この操作は取り消せません。</p>
+        </div>
+        
+        <div class="mb-3">
+          <strong>対象書籍:</strong> {{ object.book.title }}
+        </div>
+        <div class="mb-3">
+          <strong>メモ内容:</strong>
+          <div class="p-2 bg-light border rounded">
+            {{ object.content|linebreaksbr|truncatechars:100 }}
+          </div>
+        </div>
+        <div class="mb-3">
+          <strong>作成日:</strong> {{ object.created_at|date:"Y/m/d H:i" }}
+        </div>
+        
+        <form method="post" class="d-inline">
+          {% csrf_token %}
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'booklog:book_detail' object.book.pk %}" class="btn btn-secondary me-md-2">キャンセル</a>
+            <button type="submit" class="btn btn-danger">削除する</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

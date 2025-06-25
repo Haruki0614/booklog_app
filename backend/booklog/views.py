@@ -1,6 +1,7 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
 
 from .models import Book, Memo
 from .forms import MemoForm, BookForm
@@ -13,28 +14,13 @@ from django.db.models import Q
 class BookListView(LoginRequiredMixin, ListView):
     model = Book
     template_name = 'booklog/book_list.html'
-    paginate_by = 10  # ページネーション
+    context_object_name = 'books'
+    # 1ページに表示する件数を設定
+    paginate_by = 5
 
     def get_queryset(self):
-        """
-        このメソッドで、表示する書籍リストを準備します。
-        検索機能のロジックはここに記述します。
-        """
-        # まずはログインユーザーに紐づく書籍をすべて取得し、新しい順に並べます。
-        queryset = Book.objects.filter(user=self.request.user).order_by('-created_at')
-        
-        # URLから検索キーワード('q')を取得します。
-        query = self.request.GET.get('q')
-
-        # もし検索キーワードがあれば、絞り込みを実行します。
-        if query:
-            # タイトル(title)または著者(author)に検索キーワードが含まれるものを検索します。
-            # "icontains" は大文字・小文字を区別しない部分一致を意味します。
-            queryset = queryset.filter(
-                Q(title__icontains=query) | Q(author__icontains=query)
-            )
-        
-        return queryset
+        # ログインユーザーの書籍のみを新しい順に表示
+        return Book.objects.filter(user=self.request.user).order_by('-id')
 
     def get_context_data(self, **kwargs):
         """
@@ -54,7 +40,7 @@ class BookDetailView(LoginRequiredMixin, DetailView):
 
 class BookCreateView(LoginRequiredMixin, CreateView):
     model = Book
-    form_class = BookForm # fieldsの代わりにform_classを指定
+    form_class = BookForm
     template_name = 'booklog/book_form.html'
     success_url = reverse_lazy('booklog:book_list')
 
@@ -64,23 +50,25 @@ class BookCreateView(LoginRequiredMixin, CreateView):
 
 class BookUpdateView(LoginRequiredMixin, UpdateView):
     model = Book
-    form_class = BookForm # fieldsの代わりにform_classを指定
+    form_class = BookForm
     template_name = 'booklog/book_form.html'
-    success_url = reverse_lazy('booklog:book_list')
-
+    
     def get_queryset(self):
         return Book.objects.filter(user=self.request.user)
+    
+    def get_success_url(self):
+        return reverse_lazy('booklog:book_detail', kwargs={'pk': self.object.pk})
 
 class BookDeleteView(LoginRequiredMixin, DeleteView):
     model = Book
-    template_name = 'booklog/book_confirm_delete.html'
+    template_name = 'booklog/book_delete.html'
     success_url = reverse_lazy('booklog:book_list')
 
     def get_queryset(self):
         return Book.objects.filter(user=self.request.user)
 
 
-class MemoCreateView(CreateView):
+class MemoCreateView(LoginRequiredMixin, CreateView):
     model = Memo
     form_class = MemoForm
     template_name = 'booklog/memo_form.html'
@@ -90,7 +78,7 @@ class MemoCreateView(CreateView):
         # URLから書籍のプライマリキー（pk）を取得
         book_pk = self.kwargs['book_pk']
         # pkを元に書籍オブジェクトを取得
-        book = get_object_or_404(Book, pk=book_pk)
+        book = get_object_or_404(Book, pk=book_pk, user=self.request.user)
         
         # フォームのインスタンスに書籍を紐付ける
         form.instance.book = book
@@ -106,6 +94,8 @@ class MemoCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['book_pk'] = self.kwargs['book_pk']
+        book = get_object_or_404(Book, pk=self.kwargs['book_pk'], user=self.request.user)
+        context['book'] = book
         return context
 
 class MemoUpdateView(UpdateView):
@@ -120,7 +110,7 @@ class MemoUpdateView(UpdateView):
 
 class MemoDeleteView(DeleteView):
     model = Memo
-    template_name = 'booklog/memo_confirm_delete.html'
+    template_name = 'booklog/memo_delete.html'
 
     def get_success_url(self):
         # メモが紐づく書籍の詳細ページにリダイレクト

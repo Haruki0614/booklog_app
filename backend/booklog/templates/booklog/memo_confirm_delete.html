@@ -1,9 +1,0 @@
-<h1>メモの削除</h1>
-<p>「{{ object.content|truncatechars:20 }}」を本当に削除しますか？</p>
-
-<form method="post">
-  {% csrf_token %}
-  <button type="submit">はい、削除します</button>
-</form>
-
-<a href="{% url 'booklog:book_detail' object.book.pk %}">キャンセル</a>
