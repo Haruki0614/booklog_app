@@ -1,4 +1,5 @@
 from django.test import TestCase
+<<<<<<< HEAD
 from django.contrib.auth import get_user_model
 from .models import Book, Memo
 from datetime import date
@@ -43,3 +44,6 @@ class MemoModelTest(TestCase):
     def test_memo_content(self):
         self.assertEqual(self.memo.content, 'メモ内容テスト')
         self.assertEqual(self.memo.book, self.book)
+=======
+# Create your tests here.
+>>>>>>> 5c827f4 (feat/tests)
