@@ -30,7 +30,7 @@ class BookListView(UserBookOwnerMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         
-        query = self.request.GET.get('query')  # 'q'から'query'に変更
+        query = self.request.GET.get('query')
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | Q(author__icontains=query)
@@ -39,7 +39,7 @@ class BookListView(UserBookOwnerMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['query'] = self.request.GET.get('query', '')  # 'q'から'query'に変更
+        context['query'] = self.request.GET.get('query', '')
         return context
 
 class BookDetailView(UserBookOwnerMixin, DetailView):
