@@ -12,20 +12,25 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db.models import Q
 
 class UserBookOwnerMixin(LoginRequiredMixin):
-    """書籍の所有者であるかを確認するMixin"""
     def get_queryset(self):
         return Book.objects.filter(user=self.request.user).order_by('-id')
+
+class UserMemoOwnerMixin(LoginRequiredMixin):
+    def get_queryset(self):
+        return Memo.objects.filter(book__user=self.request.user)
+
+
 
 class BookListView(UserBookOwnerMixin, ListView):
     model = Book
     template_name = 'booklog/book_list.html'
     context_object_name = 'books'
-    # 1ページに表示する件数を設定
     paginate_by = 5
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        query = self.request.GET.get('q')
+        
+        query = self.request.GET.get('query')  # 'q'から'query'に変更
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | Q(author__icontains=query)
@@ -33,12 +38,8 @@ class BookListView(UserBookOwnerMixin, ListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        """
-        テンプレートに渡す追加のデータを設定します。
-        """
         context = super().get_context_data(**kwargs)
-        # 検索後も検索ボックスにキーワードが残るように、キーワードをテンプレートに渡します。
-        context['query'] = self.request.GET.get('q', '')
+        context['query'] = self.request.GET.get('query', '')  # 'q'から'query'に変更
         return context
 
 class BookDetailView(UserBookOwnerMixin, DetailView):
@@ -68,11 +69,6 @@ class BookDeleteView(UserBookOwnerMixin, DeleteView):
     template_name = 'booklog/book_delete.html'
     success_url = reverse_lazy('booklog:book_list')
 
-
-class UserMemoOwnerMixin(LoginRequiredMixin):
-    """メモの所有者（書籍の所有者）であるかを確認するMixin"""
-    def get_queryset(self):
-        return Memo.objects.filter(book__user=self.request.user)
 
 
 class MemoCreateView(UserMemoOwnerMixin, CreateView):
