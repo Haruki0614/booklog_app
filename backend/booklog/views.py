@@ -1,13 +1,15 @@
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.core.paginator import Paginator
 
 from .models import Book, Memo
 from .forms import MemoForm, BookForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 from django.db.models import Q
 
@@ -122,3 +124,29 @@ class SignUpView(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy('login') # 登録成功後はログインページにリダイレクト
     template_name = 'booklog/signup.html'
+
+    def guest_login(request):
+        guest_username = 'guestuser'
+        guest_password = User.objects.make_random_password()
+
+        # ゲストユーザーが存在しない場合は作成
+        guest_user, created = User.objects.get_or_create(
+            username=guest_username,
+            defaults={'password': guest_password}
+        )
+
+        # ゲストユーザーが新規作成された場合、サンプルデータを追加
+        if created:
+            # サンプル書籍1
+            book1 = Book.objects.create(user=guest_user, title='走れメロス', author='太宰治')
+            Memo.objects.create(book=book1, content='友情の物語。感動した。')
+
+            # サンプル書籍2
+            book2 = Book.objects.create(user=guest_user, title='こころ', author='夏目漱石')
+            Memo.objects.create(book=book2, content='先生と私の関係性が興味深い。')
+            Memo.objects.create(book=book2, content='人間のエゴイズムについて考えさせられる。')
+
+        # ゲストユーザーでログイン
+        login(request, guest_user)
+        
+        return redirect('booklog:book_list')

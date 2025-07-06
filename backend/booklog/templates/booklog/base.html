@@ -42,6 +42,12 @@
     </nav>
 
     <main class="container">
+      {% if user.username == 'guestuser' %}
+      <div class="alert alert-info" role="alert">
+        現在<strong>ゲストユーザー</strong>でログインしています。
+        登録したデータは他のユーザーと共有される可能性があります。大切なデータは正規のユーザー登録後にご利用ください。
+      </div>
+      {% endif %}
       {% block content %}
       {% endblock %}
     </main>
