@@ -2,6 +2,9 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.shortcuts import get_object_or_404, redirect
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 
 from .models import Book, Memo
 from .forms import MemoForm, BookForm
@@ -125,28 +128,33 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('login') # 登録成功後はログインページにリダイレクト
     template_name = 'booklog/signup.html'
 
-    def guest_login(request):
-        guest_username = 'guestuser'
-        guest_password = User.objects.make_random_password()
+def guest_login(request):
+    """ゲストユーザーでログインするためのビュー"""
+    guest_username = 'guestuser'
+    
+    # パスワードは固定でも問題ありませんが、念のためランダムなものを設定します。
+    # 実際にはこのパスワードでログインすることはありません。
+    guest_password = User.objects.make_random_password() 
 
-        # ゲストユーザーが存在しない場合は作成
-        guest_user, created = User.objects.get_or_create(
-            username=guest_username,
-            defaults={'password': guest_password}
-        )
+    # ゲストユーザーが存在しなければ作成し、存在すれば取得します。
+    guest_user, created = User.objects.get_or_create(
+        username=guest_username,
+        defaults={'password': guest_password} # パスワードはハッシュ化されて保存されます
+    )
 
-        # ゲストユーザーが新規作成された場合、サンプルデータを追加
-        if created:
-            # サンプル書籍1
-            book1 = Book.objects.create(user=guest_user, title='走れメロス', author='太宰治')
-            Memo.objects.create(book=book1, content='友情の物語。感動した。')
+    # ゲストユーザーが新規作成された場合、サンプルデータを追加します。
+    if created:
+        # サンプル書籍1
+        book1 = Book.objects.create(user=guest_user, title='走れメロス', author='太宰治')
+        Memo.objects.create(book=book1, content='友情の物語。感動した。')
 
-            # サンプル書籍2
-            book2 = Book.objects.create(user=guest_user, title='こころ', author='夏目漱石')
-            Memo.objects.create(book=book2, content='先生と私の関係性が興味深い。')
-            Memo.objects.create(book=book2, content='人間のエゴイズムについて考えさせられる。')
+        # サンプル書籍2
+        book2 = Book.objects.create(user=guest_user, title='こころ', author='夏目漱石')
+        Memo.objects.create(book=book2, content='先生と私の関係性が興味深い。')
+        Memo.objects.create(book=book2, content='人間のエゴイズムについて考えさせられる。')
 
-        # ゲストユーザーでログイン
-        login(request, guest_user)
-        
-        return redirect('booklog:book_list')
+    # ゲストユーザーでログイン状態にします
+    login(request, guest_user)
+    
+    # ログイン後は書籍一覧ページにリダイレクトします
+    return redirect('booklog:book_list')
