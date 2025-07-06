@@ -13,7 +13,8 @@ urlpatterns = [
     
     # サインアップ用のURL
     path('signup/', views.SignUpView.as_view(), name='signup'),
-    
+    path('guest_login/', views.guest_login, name='guest_login'),
+
     # メモ用のURL
     path('detail/<int:book_pk>/memo/add/', views.MemoCreateView.as_view(), name='memo_add'),
     path('memo/edit/<int:pk>/', views.MemoUpdateView.as_view(), name='memo_edit'),
